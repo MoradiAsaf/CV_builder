@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import {
   TextField,
   Typography,
@@ -13,12 +13,14 @@ import { useCV } from "../context/CVContext";
 function SkillsSection() {
   const { skills, setSkills } = useCV();
   const [newSkill, setNewSkill] = useState("");
+  const inputRef = useRef(null);
 
   const handleAdd = () => {
     const trimmed = newSkill.trim();
     if (!trimmed) return;
     setSkills((prev) => [...prev, trimmed]);
     setNewSkill("");
+    setTimeout(() => inputRef.current?.focus(), 0);
   };
 
   const handleDelete = (index) => {
@@ -43,6 +45,7 @@ function SkillsSection() {
           value={newSkill}
           onChange={(e) => setNewSkill(e.target.value)}
           onKeyDown={handleKeyDown}
+          inputRef={inputRef}
           size="small"
           fullWidth
         />

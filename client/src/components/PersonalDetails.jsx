@@ -1,11 +1,36 @@
+import { useState } from "react";
 import { TextField, Typography, Paper, Box } from "@mui/material";
 import { useCV } from "../context/CVContext";
 
 function PersonalDetails() {
   const { personalDetails, setPersonalDetails } = useCV();
+  const [errors, setErrors] = useState({ phone: "", email: "" });
 
   const handleChange = (field) => (e) => {
     setPersonalDetails((prev) => ({ ...prev, [field]: e.target.value }));
+    if (field === "phone" || field === "email") {
+      setErrors((prev) => ({ ...prev, [field]: "" }));
+    }
+  };
+
+  const validatePhone = (value) => {
+    if (!value) return "";
+    const phoneRegex = /^[0-9\-+() ]{7,15}$/;
+    return phoneRegex.test(value) ? "" : "Invalid phone number";
+  };
+
+  const validateEmail = (value) => {
+    if (!value) return "";
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(value) ? "" : "Invalid email address";
+  };
+
+  const handleBlur = (field) => () => {
+    if (field === "phone") {
+      setErrors((prev) => ({ ...prev, phone: validatePhone(personalDetails.phone) }));
+    } else if (field === "email") {
+      setErrors((prev) => ({ ...prev, email: validateEmail(personalDetails.email) }));
+    }
   };
 
   return (
@@ -24,6 +49,9 @@ function PersonalDetails() {
           label="Phone"
           value={personalDetails.phone}
           onChange={handleChange("phone")}
+          onBlur={handleBlur("phone")}
+          error={!!errors.phone}
+          helperText={errors.phone}
           fullWidth
         />
         <TextField
@@ -31,6 +59,9 @@ function PersonalDetails() {
           type="email"
           value={personalDetails.email}
           onChange={handleChange("email")}
+          onBlur={handleBlur("email")}
+          error={!!errors.email}
+          helperText={errors.email}
           fullWidth
         />
       </Box>
