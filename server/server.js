@@ -51,18 +51,26 @@ app.post("/api/improve-summary", async (req, res) => {
 // Improve experience description with AI
 app.post("/api/improve-experience", async (req, res) => {
   try {
-    const { role, company, description } = req.body;
+    const { role: jobRole, company, description } = req.body;
     const completion = await openai.chat.completions.create({
       model: "gpt-4o-mini",
       messages: [
         {
           role: "user",
-          content: `Rewrite the following job experience description to sound professional and suitable for a CV.\nRole: ${role}\nCompany: ${company}\nDescription: ${description}`,
+          content: `Based on the following job experience, return a JSON object with two fields:
+1. "improvedRole" - a professional job title suitable for a CV based on the role provided
+2. "improvedDescription" - an improved version of the job description, professional and suitable for a CV
+
+Return ONLY valid JSON, no markdown, no code blocks, no extra text.
+
+Role: ${jobRole}
+Company: ${company}
+Description: ${description}`,
         },
       ],
     });
-    const improvedText = completion.choices[0].message.content;
-    res.json({ improvedText });
+    const parsed = JSON.parse(completion.choices[0].message.content);
+    res.json({ improvedRole: parsed.improvedRole, improvedDescription: parsed.improvedDescription });
   } catch (error) {
     console.error("Error improving experience:", error.message);
     res.status(500).json({ error: "Failed to improve experience" });
