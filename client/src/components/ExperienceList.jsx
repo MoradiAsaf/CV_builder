@@ -41,7 +41,13 @@ function ExperienceList() {
       );
       setExperiences((prev) =>
         prev.map((item, i) =>
-          i === index ? { ...item, description: res.data.improvedText } : item
+          i === index
+            ? {
+                ...item,
+                role: res.data.improvedRole || item.role,
+                description: res.data.improvedDescription,
+              }
+            : item
         )
       );
     } catch (error) {

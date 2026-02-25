@@ -36,7 +36,7 @@ app.post("/api/improve-summary", async (req, res) => {
       messages: [
         {
           role: "user",
-          content: `Improve the following professional summary for a CV.\nMake it clear, concise and professional:\n${summary}`,
+          content: `Improve the following professional summary for a CV. Make it clear, concise and professional. Return only the improved text as plain text, without any markdown formatting, bullet points, or labels.\n\n${summary}`,
         },
       ],
     });

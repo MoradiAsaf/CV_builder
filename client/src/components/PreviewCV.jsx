@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   Typography,
@@ -10,15 +10,18 @@ import {
   Button,
 } from "@mui/material";
 import EditIcon from "@mui/icons-material/Edit";
+import DownloadIcon from "@mui/icons-material/Download";
 import EmailIcon from "@mui/icons-material/Email";
 import PhoneIcon from "@mui/icons-material/Phone";
 import axios from "axios";
+import html2pdf from "html2pdf.js";
 import { useCV } from "../context/CVContext";
 
 function PreviewCV() {
   const [cvData, setCvData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const cvRef = useRef(null);
   const navigate = useNavigate();
   const {
     setPersonalDetails,
@@ -42,6 +45,21 @@ function PreviewCV() {
     };
     fetchCV();
   }, []);
+
+  const handleDownloadPDF = () => {
+    const element = cvRef.current;
+    const fileName = cvData?.personalDetails?.fullName
+      ? `${cvData.personalDetails.fullName} - CV.pdf`
+      : "CV.pdf";
+    const opt = {
+      margin: 0,
+      filename: fileName,
+      image: { type: "jpeg", quality: 0.98 },
+      html2canvas: { scale: 2 },
+      jsPDF: { unit: "mm", format: "a4", orientation: "portrait" },
+    };
+    html2pdf().set(opt).from(element).save();
+  };
 
   const handleEdit = () => {
     if (!cvData) return;
@@ -81,7 +99,14 @@ function PreviewCV() {
 
   return (
     <Paper sx={{ p: 4, maxWidth: 800, mx: "auto" }}>
-      <Box sx={{ display: "flex", justifyContent: "flex-end", mb: 2 }}>
+      <Box sx={{ display: "flex", justifyContent: "flex-end", gap: 1, mb: 2 }}>
+        <Button
+          variant="outlined"
+          startIcon={<DownloadIcon />}
+          onClick={handleDownloadPDF}
+        >
+          Download PDF
+        </Button>
         <Button
           variant="outlined"
           startIcon={<EditIcon />}
@@ -91,6 +116,7 @@ function PreviewCV() {
         </Button>
       </Box>
 
+      <Box ref={cvRef} sx={{ p: 3 }}>
       {/* Header - Personal Details */}
       <Box sx={{ textAlign: "center", mb: 3 }}>
         <Typography variant="h3" fontWeight="bold">
@@ -180,6 +206,7 @@ function PreviewCV() {
           </Box>
         </Box>
       )}
+      </Box>
     </Paper>
   );
 }
