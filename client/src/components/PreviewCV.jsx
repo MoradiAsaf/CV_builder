@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import {
   Typography,
   Paper,
@@ -6,15 +7,26 @@ import {
   Divider,
   Chip,
   CircularProgress,
+  Button,
 } from "@mui/material";
+import EditIcon from "@mui/icons-material/Edit";
 import EmailIcon from "@mui/icons-material/Email";
 import PhoneIcon from "@mui/icons-material/Phone";
 import axios from "axios";
+import { useCV } from "../context/CVContext";
 
 function PreviewCV() {
   const [cvData, setCvData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const navigate = useNavigate();
+  const {
+    setPersonalDetails,
+    setSummary,
+    setEducation,
+    setSkills,
+    setExperiences,
+  } = useCV();
 
   useEffect(() => {
     const fetchCV = async () => {
@@ -30,6 +42,16 @@ function PreviewCV() {
     };
     fetchCV();
   }, []);
+
+  const handleEdit = () => {
+    if (!cvData) return;
+    setPersonalDetails(cvData.personalDetails || { fullName: "", phone: "", email: "" });
+    setSummary(cvData.summary || "");
+    setEducation(cvData.education || { institution: "", degree: "", years: "" });
+    setSkills(cvData.skills || []);
+    setExperiences(cvData.experiences || []);
+    navigate("/editor");
+  };
 
   if (loading) {
     return (
@@ -59,6 +81,16 @@ function PreviewCV() {
 
   return (
     <Paper sx={{ p: 4, maxWidth: 800, mx: "auto" }}>
+      <Box sx={{ display: "flex", justifyContent: "flex-end", mb: 2 }}>
+        <Button
+          variant="outlined"
+          startIcon={<EditIcon />}
+          onClick={handleEdit}
+        >
+          Edit CV
+        </Button>
+      </Box>
+
       {/* Header - Personal Details */}
       <Box sx={{ textAlign: "center", mb: 3 }}>
         <Typography variant="h3" fontWeight="bold">
